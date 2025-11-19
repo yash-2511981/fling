@@ -20,9 +20,6 @@ const VideoCallScreen = () => {
   const localStreamRef = useRef(null);
   const localRef = useRef(null)
 
-  // ------------------------------
-  // ICE Candidate Setup
-  // ------------------------------
   useEffect(() => {
     if (!socket || !remoteUser || !peer) return;
 
@@ -78,9 +75,6 @@ const VideoCallScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, remoteUser, peer, userName]);
 
-  // ------------------------------
-  // Process Pending ICE Candidates
-  // ------------------------------
   useEffect(() => {
     const processPending = async () => {
       if (peer.remoteDescription && pendingCandidates.length > 0) {
@@ -97,9 +91,6 @@ const VideoCallScreen = () => {
     processPending();
   }, [peer.remoteDescription, pendingCandidates, peer]);
 
-  // ------------------------------
-  // Process Pending Offer After Media Ready
-  // ------------------------------
   useEffect(() => {
     if (isMediaReady && pendingOffer) {
       const process = async () => {
@@ -115,9 +106,6 @@ const VideoCallScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMediaReady, pendingOffer]);
 
-  // ------------------------------
-  // Signaling Handlers
-  // ------------------------------
   useEffect(() => {
     if (!socket) return;
 
@@ -185,9 +173,6 @@ const VideoCallScreen = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteUser, socket, userName, isInitiater, peer, sendOffer, sendAnswer, setRemoteAns]);
 
-  // ------------------------------
-  // Remote Stream
-  // ------------------------------
   useEffect(() => {
     if (remoteVideoRef.current && remoteStream) {
       remoteVideoRef.current.srcObject = remoteStream;
@@ -195,9 +180,6 @@ const VideoCallScreen = () => {
     }
   }, [remoteStream]);
 
-  // ------------------------------
-  // Controls
-  // ------------------------------
   const toggleMic = () => {
     const audio = localRef.current?.getAudioTracks()[0];
     if (audio) {
