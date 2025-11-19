@@ -9,6 +9,7 @@ const HomeScreen = () => {
 
 
     const initiateCall = (to) => {
+        console.log(to)
         setRemoteUser(to)
         setIsInitiater(true)
         setIsCallActive(true)

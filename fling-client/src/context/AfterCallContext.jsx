@@ -9,8 +9,8 @@ const AfterCallStateProvider = ({ children }) => {
 
     const resetCallState = () => {
         setIsCallActive(false)
-        setIsMicOn(false)
-        setIsCameraOn(false)
+        setIsMicOn(true)
+        setIsCameraOn(true)
     }
 
 

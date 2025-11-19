@@ -9,7 +9,7 @@ const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     const [users, dispatch] = useReducer(userReducer, [])
-    const { setRemoteUser, setShowCallNotification, remoteUser, resetStates } = useCallState()
+    const { setRemoteUser, setShowCallNotification, resetStates } = useCallState()
     const { isCallActive, resetCallState } = useAfterCallState()
 
     //component level states
@@ -61,12 +61,9 @@ const SocketProvider = ({ children }) => {
                     }
                 }
                     break;
-                case "callDeclined": {
-                    const { from } = data.payload;
-                    if (from === remoteUser) {
-                        resetStates()
-                    }
-                }
+                case "callDeclined":
+                    resetStates()
+                    resetCallState()
                     break;
                 case "hangUp":
                     console.log(isCallActive)
