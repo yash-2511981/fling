@@ -9,7 +9,7 @@ const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     const [users, dispatch] = useReducer(userReducer, [])
-    const { setCallType, setRemoteUser, setShowCallNotification, remoteUser, resetStates } = useCallState()
+    const { setRemoteUser, setShowCallNotification, remoteUser, resetStates } = useCallState()
     const { isCallActive, resetCallState } = useAfterCallState()
 
     //component level states
@@ -52,11 +52,10 @@ const SocketProvider = ({ children }) => {
                     })
                     break;
                 case "incomingCall": {
-                    const { from, callType } = data.payload
+                    const { from } = data.payload
                     if (isCallActive) {
                         newSocket.send(JSON.stringify({ event: "callDeclined", payload: { from: userName, to: from, message: "User is active in other call" } }))
                     } else {
-                        setCallType(callType)
                         setRemoteUser(from)
                         setShowCallNotification(true)
                     }
@@ -71,10 +70,8 @@ const SocketProvider = ({ children }) => {
                     break;
                 case "hangUp":
                     console.log(isCallActive)
-                    if (isCallActive) {
-                        resetStates()
-                        resetCallState()
-                    }
+                    resetStates()
+                    resetCallState()
                     break;
             }
         }

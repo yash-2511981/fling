@@ -5,21 +5,19 @@ const CallProvider = ({ children }) => {
 
     const [callType, setCallType] = useState(null);
     const [remoteUser, setRemoteUser] = useState(null);
-    const [isCallActive, setIsCallActive] = useState(false);
     const [showCallNotification, setShowCallNotification] = useState(false)
     const [isInitiater, setIsInitiater] = useState(false);
 
     const resetStates = () => {
         setCallType(null)
         setRemoteUser(null)
-        setIsCallActive(false)
         setShowCallNotification(false)
         setIsInitiater(false)
     }
 
 
     return (
-        <CallContext.Provider value={{ showCallNotification, callType, remoteUser, isCallActive, isInitiater, setIsInitiater, setCallType, setRemoteUser, setIsCallActive, setShowCallNotification, resetStates }}>
+        <CallContext.Provider value={{ showCallNotification, callType, remoteUser, isInitiater, setIsInitiater, setCallType, setRemoteUser, setShowCallNotification, resetStates }}>
             {children}
         </CallContext.Provider>
     )

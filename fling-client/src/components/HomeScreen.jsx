@@ -1,17 +1,21 @@
+import { useAfterCallState } from "../hooks/useAfterCallState";
 import { useCallState } from "../hooks/useCallState";
 import useSocket from "../hooks/useSocket";
 
 const HomeScreen = () => {
-    const { setCallType, setIsInitiater, setRemoteUser, setIsCallActive } = useCallState()
-    const { userName, socket, users } = useSocket()
+    const { setIsInitiater, setRemoteUser } = useCallState()
+    const { setIsCallActive } = useAfterCallState()
+    const { socket, userName, users } = useSocket()
 
 
-    const initiateCall = (callType, to) => {
-        socket.send(JSON.stringify({ event: "initiateCall", payload: { from: userName, to, callType } }))
-        setCallType(callType)
-        setIsCallActive(true)
+    const initiateCall = (to) => {
         setRemoteUser(to)
         setIsInitiater(true)
+        setIsCallActive(true)
+        socket.send(JSON.stringify({
+            event: "initiateCall",
+            payload: { from: userName, to }
+        }));
     }
 
     return (
@@ -106,7 +110,7 @@ const HomeScreen = () => {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                initiateCall("audioCall", u)
+                                                initiateCall(u)
                                             }}
                                             className="flex-1 p-2 bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm rounded-lg font-medium transition-all flex items-center justify-center gap-1"
                                         >
@@ -118,7 +122,7 @@ const HomeScreen = () => {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                initiateCall("videoCall", u)
+                                                initiateCall(u)
                                             }}
                                             className="flex-1 p-2 bg-green-500 hover:bg-green-600 text-white text-xs sm:text-sm rounded-lg font-medium transition-all flex items-center justify-center gap-1"
                                         >

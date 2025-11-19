@@ -1,61 +1,105 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import {  useEffect, useMemo, useState } from "react"
 import { PeerContext } from "../hooks/usePeer"
 
 const PeerProvider = ({ children }) => {
-
-
     const [remoteStream, setRemoteStream] = useState(null);
 
-    const peer = useMemo(() => new RTCPeerConnection({
-        iceServers: [
-            {
-                urls:
-                    [
-                        "stun:stun.l.google.com:18302",
+    const peer = useMemo(() => {
+        const peerConnection = new RTCPeerConnection({
+            iceServers: [
+                {
+                    urls: [
+                        "stun:stun.l.google.com:19302",
                         "stun:global.stun.twilio.com:3478"
                     ]
-            }
-        ]
-    }), [])
+                }
+            ]
+        });
 
-    const createOffer = async () => {
-        const offer = await peer.createOffer()
-        peer.localDescription(new RTCSessionDescription(offer))
-        return offer
+        peerConnection.ontrack = (ev) => {
+            console.log("Remote track received")
+            if (ev.streams && ev.streams[0]) {
+                setRemoteStream(ev.streams[0])
+            }
+        }
+
+        console.log("🔌 Peer connection created");
+
+        return peerConnection;
+    }, []);
+
+    const sendOffer = async () => {
+        try {
+            const offer = await peer.createOffer();
+            await peer.setLocalDescription(new RTCSessionDescription(offer));
+            console.log("📤 Offer created and set as local description");
+            return offer;
+        } catch (error) {
+            console.error("❌ Error creating offer:", error);
+            throw error;
+        }
     }
 
     const sendAnswer = async (offer) => {
-        await peer.setRemoteDescription(new RTCSessionDescription(offer))
-        const ans = await peer.sendAnswer()
-        await peer.setLocalDescription(new RTCSessionDescription(ans))
-        return ans
+        try {
+            await peer.setRemoteDescription(new RTCSessionDescription(offer));
+            const ans = await peer.createAnswer();
+            await peer.setLocalDescription(new RTCSessionDescription(ans));
+            console.log("📤 Answer created and set as local description");
+            return ans;
+        } catch (error) {
+            console.error("❌ Error creating answer:", error);
+            throw error;
+        }
     }
 
     const setRemoteAns = async (ans) => {
-        await peer.setRemoteDescription(ans)
+        try {
+            await peer.setRemoteDescription(new RTCSessionDescription(ans));
+            console.log("✅ Remote answer set successfully");
+        } catch (error) {
+            console.error("❌ Error setting remote answer:", error);
+            throw error;
+        }
     }
 
     const sendStream = (stream) => {
-        const tracks = stream.getTracks()
-        for (const track of tracks) {
-            peer.addTrack(track, stream)
+        try {
+            console.log("📡 Adding stream tracks to peer connection");
+            const tracks = stream.getTracks();
+            for (const track of tracks) {
+                peer.addTrack(track, stream);
+                console.log(`✅ Added ${track.kind} track`);
+            }
+        } catch (error) {
+            console.error("❌ Error adding stream:", error);
+            throw error;
         }
     }
 
-    const handleMediaStreaming = useCallback((ev) => {
-        const streams = ev.streams
-        setRemoteStream(streams[0])
-    }, [setRemoteStream])
+    const addIceCandidate = async (candidate) => {
+        await peer.addIceCandidate(candidate)
+    }
 
+
+    // Cleanup on unmount
     useEffect(() => {
-        peer.addEventListener('track', handleMediaStreaming)
         return () => {
-            peer.removeEventListener('track', handleMediaStreaming)
-        }
-    }, [peer, handleMediaStreaming])
+            console.log("🧹 Cleaning up peer connection");
+            peer.close();
+        };
+    }, [peer]);
 
     return (
-        <PeerContext.Provider value={{ peer, createOffer, sendAnswer, sendStream, setRemoteAns, remoteStream }} >
+        <PeerContext.Provider value={{
+            peer,
+            sendOffer,
+            sendAnswer,
+            sendStream,
+            setRemoteAns,
+            remoteStream,
+            addIceCandidate
+        }}>
             {children}
         </PeerContext.Provider>
     )

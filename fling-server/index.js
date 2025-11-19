@@ -1,5 +1,4 @@
 import http from 'http';
-import { json } from 'stream/consumers';
 import { WebSocketServer } from 'ws';
 
 //create a http server 
@@ -52,7 +51,7 @@ wss.on('connection', (ws, req) => {
     ws.on('message', (data) => {
         const { event, payload } = JSON.parse(data.toString());
         const { to, from } = payload;
-        console.log("Event:", event, "Payload:", payload);
+        console.log("Event:", event, "payload", payload);
 
         const receiver = clientSocketMap.get(to);
 
@@ -63,8 +62,8 @@ wss.on('connection', (ws, req) => {
 
         switch (event) {
             case "initiateCall":
-                const { callType } = payload;
-                receiver.send(JSON.stringify({ event: "incomingCall", payload: { from, to, callType } }))
+                const { offer } = payload;
+                receiver.send(JSON.stringify({ event: "incomingCall", payload: { from, to, offer } }))
                 break;
             case "callAccepted":
                 receiver.send(JSON.stringify({
@@ -98,7 +97,7 @@ wss.on('connection', (ws, req) => {
             case "sendIceCandidate":
                 receiver.send(JSON.stringify({
                     event: "receiveICECandidate",
-                    payload: { from, to, iceCandidate: payload.iceCandidate }
+                    payload: { from, to, iceCandidate: payload.candidate }
                 }))
                 break;
             case "hangUp":

@@ -18,8 +18,9 @@ const CallNotification = () => {
 
     const onReject = (e) => {
         e.stopPropagation()
-        socket.send(JSON.stringify({ event: "callDeclined", payload: { to: remoteUser } }))
+        socket.send(JSON.stringify({ event: "callDeclined", payload: { from: userName, to: remoteUser } }))
         resetStates()
+        setShowCallNotification(false)
     }
 
     return (

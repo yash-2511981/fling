@@ -1,15 +1,15 @@
 import { useState } from "react"
 import HomeScreen from "./components/HomeScreen";
-import AudioCallScreen from "./components/AudioCallScreen";
 import VideoCallScreen from "./components/VideoCallScreen";
 import useSocket from "./hooks/useSocket";
 import CallNotification from "./components/CallNotification";
 import { useCallState } from "./hooks/useCallState";
-import PeerProvider from "./context/PeerContext";
+import { useAfterCallState } from "./hooks/useAfterCallState";
 
 function App() {
   const { userName, setUserName } = useSocket();
-  const { showCallNotification, callType, isCallActive } = useCallState()
+  const { showCallNotification } = useCallState()
+  const { isCallActive } = useAfterCallState()
 
   const [inputValue, setInputValue] = useState(null);
 
@@ -33,11 +33,8 @@ function App() {
 
       {/* 🖥️ Main Window */}
       <div className="flex-1 mt-16 flex items-start justify-center p-6 w-full max-w-7xl mx-auto">
-        {callType === null && <HomeScreen />}
-        <PeerProvider>
-          {(callType === "audioCall" && isCallActive) && <AudioCallScreen />}
-          {(callType === "videoCall" && isCallActive) && <VideoCallScreen />}
-        </PeerProvider>
+        {!isCallActive && <HomeScreen />}
+        {isCallActive && <VideoCallScreen />}
       </div>
 
       {showCallNotification && <CallNotification />}
